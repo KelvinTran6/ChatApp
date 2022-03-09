@@ -26,6 +26,18 @@ io.on('connection', socket => {
     io.emit('newUser', users)
   })
 
+  socket.on('uniqueName', () => {
+
+    const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
+    let uniqueName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] })
+
+    while(users.some(user=>user.user.nickname === uniqueName)){
+      console.log(uniqueName)
+      uniqueName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] })
+    }
+    io.emit("uniqueName", uniqueName)
+  })
+
   socket.on('verify', ({nickname, color}) => {
     let available = true;
     console.log("checking")

@@ -19,11 +19,21 @@ function Login() {
 
   const handleButton = (e) => {
 
-    const nickname = currentText
+    let nickname = currentText.trim()
     const color = currentColor
 
-    socket.emit("verify", {nickname, color})
+    if(nickname === ""){
+      alert("random name will be generated")
+      socket.emit("uniqueName")
+      socket.on("uniqueName", (uniqueName) => {
+        nickname = uniqueName
+        return navigate("/app", { state: { name: nickname, color: currentColor } });
+      })
+      return
+    }
 
+
+    socket.emit("verify", {nickname, color})
     socket.on("verify", (available) => {
       if(available) {
         console.log("new name: " + currentText)
