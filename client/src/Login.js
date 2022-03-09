@@ -9,6 +9,7 @@ function Login() {
 
   const [currentText, setCurrentText] = useState("");
   const [currentColor, setCurrentColor] = useState("");
+
   const handleTextField = (e) => {
     setCurrentText(e.target.value);
   };
@@ -17,7 +18,23 @@ function Login() {
   };
 
   const handleButton = (e) => {
-    navigate("/app", { state: { name: currentText, color: currentColor } });
+
+    const nickname = currentText
+    const color = currentColor
+
+    socket.emit("verify", {nickname, color})
+
+    socket.on("verify", (available) => {
+      if(available) {
+        console.log("new name: " + currentText)
+        return navigate("/app", { state: { name: nickname, color: currentColor } });
+      }
+      else{
+        alert(nickname +" is already taken, please try another name" )
+        window.location.reload(false);
+      }
+    })
+
   };
 
   return (

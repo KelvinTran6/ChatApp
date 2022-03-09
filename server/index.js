@@ -22,6 +22,19 @@ io.on('connection', socket => {
     console.log(users)
     io.emit('newUser', users)
   })
+
+  socket.on('verify', ({nickname, color}) => {
+    let available = true;
+    console.log("checking")
+    if(users.some(user => user.user.nickname === nickname )) {
+      console.log("taken")
+      available = false
+    }
+    socket.emit("verify", available)
+
+  })
+
+
 })
 
 http.listen(4000, function() {

@@ -55,6 +55,7 @@ function App() {
 
   return (
     <Box sx={{ flexGrow: 1 }} className="container">
+      <h1>Welcome <span style = {{color: color}}>{nickname}!</span></h1>
       <Grid container className="window">
         <Grid item container spacing={3} className="content">
           <Grid item xs={12} sm={12} md={9} className="chatWindow">
