@@ -8,10 +8,10 @@ let users = []
 io.on('connection', socket => {
   socket.on('message', ({ user, message }) => {
 
-    if(message !== undefined || user !== undefined){
+    if(message !== undefined || user.user !== undefined){
       const date = new Date()
       let timeStamp = date.toLocaleTimeString()
-      messages.unshift({timeStamp:timeStamp, user:user,message:message })
+      messages.unshift({timeStamp:timeStamp, user,message:message })
       console.log(messages)
     }
     io.emit('message', messages)
@@ -20,6 +20,7 @@ io.on('connection', socket => {
 
   socket.on('userInfo', ({ nickname, color  }) => {
     users.unshift({user: nickname, color: color})
+    console.log(users)
     io.emit('newUser', users)
   })
 })

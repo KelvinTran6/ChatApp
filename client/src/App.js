@@ -19,12 +19,15 @@ function App() {
 
   useEffect(() => {
     if(!loaded) {
+
       const color = state.color
-      const nickname = state.name
-      const emptyString = ""
+      const user = undefined
+      const emptyString = undefined
       
+
       socket.emit('userInfo', {nickname, color})
-      socket.emit('message', {nickname, emptyString })
+      
+      socket.emit('message', {user:{user, color}, emptyString})
 
       setLoaded(true)
     }
@@ -50,7 +53,7 @@ function App() {
       return;
     }
 
-    socket.emit("message", { user, message });
+    socket.emit("message", { user: {user, color}, message });
     e.preventDefault();
     setCurrentText("");
   };
@@ -67,7 +70,7 @@ function App() {
                   <span key = {message}>
                     <p>
                       {" "}
-                      {message.timeStamp} <span style = {{color: color}}> {message.user} </span>: {message.message}
+                      {message.timeStamp} <span style = {{color: message.user.color}}> {message.user.user} </span>: {message.message}
                     </p>
                   </span>
                 );
