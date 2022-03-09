@@ -17,8 +17,11 @@ io.on('connection', socket => {
   })
 
 
-  socket.on('userInfo', ({ nickname, color  }) => {
-    users.unshift({user: {nickname, color: color}})
+  socket.on('userInfo', ({ nickname, color}) => {
+
+    if(!users.some(user => user.user.nickname === nickname )) {
+      users.unshift({user: {nickname, color: color}})
+    }
     console.log(users)
     io.emit('newUser', users)
   })
