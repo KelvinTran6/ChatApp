@@ -12,9 +12,8 @@ function App() {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    socket.on("message", ({user, message }) => {
-      console.log(user)
-      setMessages([{ user, message }, ...messages]);
+    socket.on("message", (messages) => {
+      setMessages(messages);
     });
   }, [messages]);
 
@@ -26,6 +25,11 @@ function App() {
   const handleButton = (e) => {
     const user = "kelvin"
     const message = currentText;
+
+    if(message === "") {
+      return;
+    }
+
     socket.emit("message", { user, message });
     e.preventDefault();
     setCurrentText("")
@@ -40,12 +44,12 @@ function App() {
             <div className="chatBox">
               {messages.map((message) => {
                 return (
-                  <div>
+                  <span>
                     <p>
                       {" "}
-                      {message.user}: {message.message}
+                      {message.timeStamp} {message.user}: {message.message}
                     </p>
-                  </div>
+                  </span>
                 );
               })}
             </div>

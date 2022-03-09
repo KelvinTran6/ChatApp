@@ -9,6 +9,7 @@
   padding:10px;
   background-color: white;
   flex-direction: column-reverse;
+  overflow-y: scroll;
 }
 .userBox{
   outline: solid black 2px;
