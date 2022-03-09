@@ -4,50 +4,67 @@ import "./App.css";
 import { Box, TextField, Grid, Button } from "@mui/material";
 import io from "socket.io-client";
 
-const socket = io("localhost:4000", { transports : ['websocket'] });
+const socket = io("localhost:4000", { transports: ["websocket"] });
 
 function App() {
-  const {state} = useLocation()
-  const nickname = state.name
-  const color = state.color
-  console.log(nickname)
+  const { state } = useLocation();
+  const nickname = state.name;
+  const color = state.color;
 
-  const[currentText, setCurrentText] = useState("");
+  const [loaded, setLoaded] = useState(false)
+
+  const [userList, setUserList] = useState([]);
+  const [currentText, setCurrentText] = useState("");
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+    if(!loaded) {
+      const color = state.color
+      const nickname = state.name
+      const emptyString = ""
+      
+      socket.emit('userInfo', {nickname, color})
+      socket.emit('message', {nickname, emptyString })
+
+      setLoaded(true)
+    }
+
+    socket.on("newUser", (userList) => {
+      setUserList(userList);
+    });
+
     socket.on("message", (messages) => {
       setMessages(messages);
     });
   }, [messages]);
 
   const handleTextField = (e) => {
-    setCurrentText(e.target.value)
+    setCurrentText(e.target.value);
   };
 
   const handleButton = (e) => {
-    const user = nickname
+    const user = nickname;
     const message = currentText;
 
-    if(message === "") {
+    if (message === "") {
       return;
     }
 
     socket.emit("message", { user, message });
     e.preventDefault();
-    setCurrentText("")
+    setCurrentText("");
   };
 
   return (
     <Box sx={{ flexGrow: 1 }} className="container">
       <Grid container className="window">
         <Grid item container spacing={3} className="content">
-          <Grid item xs={12} sm ={12} md={9} className="chatWindow">
+          <Grid item xs={12} sm={12} md={9} className="chatWindow">
             <h1>Chat</h1>{" "}
             <div className="chatBox">
               {messages.map((message) => {
                 return (
-                  <span>
+                  <span key = {message}>
                     <p>
                       {" "}
                       {message.timeStamp} {message.user}: {message.message}
@@ -57,15 +74,16 @@ function App() {
               })}
             </div>
           </Grid>
-          <Grid item xs={12} sm ={12} md={3} className="usersWindow">
-            <h1> Online Users </h1> <div className="userBox">kelvin</div>
+          <Grid item xs={12} sm={12} md={3} className="usersWindow">
+            <h1> Online Users </h1>{" "}
+            <div className="userBox">{userList.map((user) => { return <p key = {user}> {user.user} </p> })}</div>
           </Grid>
         </Grid>
         <Grid item container className="textField">
           <Grid item xs={11} md={11} className="textField">
             <TextField
               value={currentText}
-              onChange={ (e) => handleTextField(e)}
+              onChange={(e) => handleTextField(e)}
               fullWidth
             />
           </Grid>

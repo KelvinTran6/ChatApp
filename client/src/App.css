@@ -25,16 +25,19 @@
   padding:20px;
   outline: solid black 2px;
   width:auto;
-  background-color:rgb(250, 250, 250);
+  background-color:rgb(187, 187, 187);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
 }
 
+.content {
+  padding-bottom: 50px;
+}
+
 .textField {
   display:flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
 }

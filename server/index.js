@@ -7,19 +7,21 @@ let users = []
 
 io.on('connection', socket => {
   socket.on('message', ({ user, message }) => {
-    const date = new Date()
-    let timeStamp = date.toLocaleTimeString()
-    messages.unshift({timeStamp:timeStamp, user:user,message:message })
-    console.log(messages)
+
+    if(message !== undefined || user !== undefined){
+      const date = new Date()
+      let timeStamp = date.toLocaleTimeString()
+      messages.unshift({timeStamp:timeStamp, user:user,message:message })
+      console.log(messages)
+    }
     io.emit('message', messages)
   })
 
-  socket.on('userInfo', ({ nickname, color  }) => {
-    console.log(nickname)
-    users.unshift({user: nickname, color: color})
-    console.log(users)
-  })
 
+  socket.on('userInfo', ({ nickname, color  }) => {
+    users.unshift({user: nickname, color: color})
+    io.emit('newUser', users)
+  })
 })
 
 http.listen(4000, function() {

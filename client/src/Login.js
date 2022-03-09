@@ -15,10 +15,6 @@ function Login() {
   };
 
   const handleButton = (e) => {
-    const color = "red"
-    const nickname = currentText
-
-    socket.emit('userInfo', {nickname, color})
 
     navigate('/app', { state: {name: currentText, color: "red" }})
   };
