@@ -21,13 +21,10 @@ function App() {
     if(!loaded) {
 
       const color = state.color
-      const user = undefined
       const emptyString = undefined
       
-
       socket.emit('userInfo', {nickname, color})
-      
-      socket.emit('message', {user:{user, color}, emptyString})
+      socket.emit('message', {user:{nickname, color}, emptyString})
 
       setLoaded(true)
     }
@@ -46,14 +43,12 @@ function App() {
   };
 
   const handleButton = (e) => {
-    const user = nickname;
-    const message = currentText;
-
-    if (message === "") {
+    const message = currentText
+    if (message=== "") {
       return;
     }
 
-    socket.emit("message", { user: {user, color}, message });
+    socket.emit("message", { user: {nickname, color}, message});
     e.preventDefault();
     setCurrentText("");
   };
@@ -70,7 +65,7 @@ function App() {
                   <span key = {message}>
                     <p>
                       {" "}
-                      {message.timeStamp} <span style = {{color: message.user.color}}> {message.user.user} </span>: {message.message}
+                      {message.timeStamp} <span style = {{color: message.user.color}}> {message.user.nickname} </span>: {message.message}
                     </p>
                   </span>
                 );
@@ -79,7 +74,7 @@ function App() {
           </Grid>
           <Grid item xs={12} sm={12} md={3} className="usersWindow">
             <h1> Online Users </h1>{" "}
-            <div className="userBox">{userList.map((user) => { return <p key = {user} style = {{color: user.color}}>  {user.user} </p> })}</div>
+            <div className="userBox">{userList.map((current) => { return <p key = {current} style = {{color: current.user.color}}>  {current.user.nickname} </p> })}</div>
           </Grid>
         </Grid>
         <Grid item container className="textField">
