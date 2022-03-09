@@ -11,22 +11,21 @@ function App() {
   const nickname = state.name;
   const color = state.color;
 
-  const [loaded, setLoaded] = useState(false)
+  const [loaded, setLoaded] = useState(false);
 
   const [userList, setUserList] = useState([]);
   const [currentText, setCurrentText] = useState("");
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    if(!loaded) {
+    if (!loaded) {
+      const color = state.color;
+      const emptyString = undefined;
 
-      const color = state.color
-      const emptyString = undefined
-      
-      socket.emit('userInfo', {nickname, color})
-      socket.emit('message', {user:{nickname, color}, emptyString})
+      socket.emit("userInfo", { nickname, color });
+      socket.emit("message", { user: { nickname, color }, emptyString });
 
-      setLoaded(true)
+      setLoaded(true);
     }
 
     socket.on("newUser", (userList) => {
@@ -42,20 +41,35 @@ function App() {
     setCurrentText(e.target.value);
   };
 
+  const handleKeypress = (e) => {
+    console.log(e);
+    if (e.charCode === 13) {
+      const message = currentText;
+      if (message === "") {
+        return;
+      }
+      socket.emit("message", { user: { nickname, color }, message });
+      e.preventDefault();
+      setCurrentText("");
+    }
+  };
+
   const handleButton = (e) => {
-    const message = currentText
-    if (message=== "") {
+    const message = currentText;
+    if (message === "") {
       return;
     }
 
-    socket.emit("message", { user: {nickname, color}, message});
+    socket.emit("message", { user: { nickname, color }, message });
     e.preventDefault();
     setCurrentText("");
   };
 
   return (
     <Box sx={{ flexGrow: 1 }} className="container">
-      <h1>Welcome <span style = {{color: color}}>{nickname}!</span></h1>
+      <h1>
+        Welcome <span style={{ color: color }}>{nickname}!</span>
+      </h1>
       <Grid container className="window">
         <Grid item container spacing={3} className="content">
           <Grid item xs={12} sm={12} md={9} className="chatWindow">
@@ -63,10 +77,15 @@ function App() {
             <div className="chatBox">
               {messages.map((message) => {
                 return (
-                  <span key = {message}>
+                  <span key={message}>
                     <p>
                       {" "}
-                      {message.timeStamp} <span style = {{color: message.user.color}}> {message.user.nickname} </span>: {message.message}
+                      {message.timeStamp}{" "}
+                      <span style={{ color: message.user.color }}>
+                        {" "}
+                        {message.user.nickname}{" "}
+                      </span>
+                      : {message.message}
                     </p>
                   </span>
                 );
@@ -75,13 +94,23 @@ function App() {
           </Grid>
           <Grid item xs={12} sm={12} md={3} className="usersWindow">
             <h1> Online Users </h1>{" "}
-            <div className="userBox">{userList.map((current) => { return <p key = {current} style = {{color: current.user.color}}>  {current.user.nickname} </p> })}</div>
+            <div className="userBox">
+              {userList.map((current) => {
+                return (
+                  <p key={current} style={{ color: current.user.color }}>
+                    {" "}
+                    {current.user.nickname}{" "}
+                  </p>
+                );
+              })}
+            </div>
           </Grid>
         </Grid>
         <Grid item container className="textField">
           <Grid item xs={11} md={11} className="textField">
             <TextField
               value={currentText}
+              onKeyPress={(e) => handleKeypress(e)}
               onChange={(e) => handleTextField(e)}
               fullWidth
             />
