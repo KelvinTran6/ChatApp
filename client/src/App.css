@@ -12,10 +12,13 @@
   overflow-y: scroll;
 }
 .userBox{
+  display:flex;
   outline: solid black 2px;
   height:50vh;
   padding:10px;
   background-color: white;
+  flex-direction: column-reverse;
+  overflow-y: scroll;
 }
 .container {
   margin:50px;
