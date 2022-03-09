@@ -67,7 +67,7 @@ function App() {
                   <span key = {message}>
                     <p>
                       {" "}
-                      {message.timeStamp} {message.user}: {message.message}
+                      {message.timeStamp} <span style = {{color: color}}> {message.user} </span>: {message.message}
                     </p>
                   </span>
                 );
@@ -76,7 +76,7 @@ function App() {
           </Grid>
           <Grid item xs={12} sm={12} md={3} className="usersWindow">
             <h1> Online Users </h1>{" "}
-            <div className="userBox">{userList.map((user) => { return <p key = {user}> {user.user} </p> })}</div>
+            <div className="userBox">{userList.map((user) => { return <p key = {user} style = {{color: user.color}}>  {user.user} </p> })}</div>
           </Grid>
         </Grid>
         <Grid item container className="textField">
