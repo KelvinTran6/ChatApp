@@ -62,7 +62,7 @@ function Login() {
         fullWidth
       />
       <Button fullWidth variant="outlined" onClick={handleButton}>
-        Submit
+        Go to Chat!
       </Button>
     </Paper>
   );

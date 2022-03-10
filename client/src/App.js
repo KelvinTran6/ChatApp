@@ -8,11 +8,10 @@ const socket = io("localhost:4000", { transports: ["websocket"] });
 
 function App() {
   const { state } = useLocation();
-  const nickname = state.name;
   const color = state.color;
 
   const [loaded, setLoaded] = useState(false);
-
+  const [nickname, setnickname] = useState(state.name)
   const [userList, setUserList] = useState([]);
   const [currentText, setCurrentText] = useState("");
   const [messages, setMessages] = useState([]);
@@ -21,11 +20,11 @@ function App() {
     if (!loaded) {
       const color = state.color;
       const emptyString = undefined;
-      const socketID = socket.id
+      const socketID = socket.id;
 
-      console.log(socketID)
+      console.log(socketID);
 
-      socket.emit("userInfo", { nickname, color, socketID});
+      socket.emit("userInfo", { nickname, color, socketID });
       socket.emit("message", { user: { nickname, color }, emptyString });
 
       setLoaded(true);
@@ -51,27 +50,39 @@ function App() {
       if (message === "") {
         return;
       }
-      socket.emit("message", { user: { nickname, color }, message });
+
+      if (message.startsWith("/nick")) {
+        changeName(message)
+      }
+      else if (message.startsWith("/nickcolor")) {
+        changeColor()
+      }
+      else{
+        socket.emit("message", { user: { nickname, color }, message });
+      }
+
       e.preventDefault();
       setCurrentText("");
     }
   };
 
-  const handleButton = (e) => {
-    const message = currentText;
-    if (message === "") {
-      return;
-    }
+  const changeName = (message) => {
+    const regExp = "\<(.+?)\>"
+    const regAngleBracket = "(<|>)"
+    const newNickName = message.match(regExp)[1].replace(regAngleBracket, "")
 
-    socket.emit("message", { user: { nickname, color }, message });
-    e.preventDefault();
-    setCurrentText("");
+
+    socket.emit("changeName", {nickname, newNickName, color})
+    setnickname(newNickName)
+
   };
+
+  const changeColor = () => {};
 
   return (
     <Box sx={{ flexGrow: 1 }} className="container">
       <h1>
-        Welcome <span style={{ color: color }}>{nickname}!</span>
+        Welcome <span style={{ color: color }}>{nickname}</span>!
       </h1>
       <Grid container className="window">
         <Grid item container spacing={3} className="content">
@@ -88,7 +99,7 @@ function App() {
                         {" "}
                         {message.user.nickname}{" "}
                       </span>
-                      : {message.message}
+                      : <strong>{message.message}</strong>
                     </p>
                   </span>
                 );
@@ -110,18 +121,13 @@ function App() {
           </Grid>
         </Grid>
         <Grid item container className="textField">
-          <Grid item xs={11} md={11} className="textField">
+          <Grid item xs={12} md={12} className="textField">
             <TextField
               value={currentText}
               onKeyPress={(e) => handleKeypress(e)}
               onChange={(e) => handleTextField(e)}
               fullWidth
             />
-          </Grid>
-          <Grid item xs={1} md={1}>
-            <Button fullWidth variant="outlined" onClick={handleButton}>
-              Submit
-            </Button>
           </Grid>
         </Grid>
       </Grid>

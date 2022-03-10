@@ -16,6 +16,22 @@ io.on("connection", (socket) => {
     io.emit("newUser", users);
   });
 
+  socket.on("changeName", ({nickname, newNickName, color}) => {
+    var index = users.findIndex((current => current.user.nickname == nickname));
+    users[index].user.nickname = newNickName
+    console.log(users)
+    io.emit("newUser", users);
+    const date = new Date();
+    let timeStamp = date.toLocaleTimeString();
+
+    const message = "Time for a change, my new nickname is " + newNickName + "!!!"
+    const user = {nickname, color}
+
+    messages.unshift({ timeStamp: timeStamp, user, message: message });
+    console.log(messages)
+    io.emit("message", messages);
+  })
+
   socket.on("message", ({ user, message }) => {
     if (message !== undefined) {
       const date = new Date();
