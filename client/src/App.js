@@ -21,8 +21,11 @@ function App() {
     if (!loaded) {
       const color = state.color;
       const emptyString = undefined;
+      const socketID = socket.id
 
-      socket.emit("userInfo", { nickname, color });
+      console.log(socketID)
+
+      socket.emit("userInfo", { nickname, color, socketID});
       socket.emit("message", { user: { nickname, color }, emptyString });
 
       setLoaded(true);

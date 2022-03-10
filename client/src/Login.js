@@ -18,33 +18,34 @@ function Login() {
   };
 
   const handleButton = (e) => {
+    let nickname = currentText.trim();
+    const color = currentColor;
 
-    let nickname = currentText.trim()
-    const color = currentColor
-
-    if(nickname === ""){
-      alert("random name will be generated")
-      socket.emit("uniqueName")
-      socket.on("uniqueName", (uniqueName) => {
-        nickname = uniqueName
-        return navigate("/app", { state: { name: nickname, color: currentColor } });
-      })
-      return
+    if (nickname === "") {
+      const {
+        uniqueNamesGenerator,
+        adjectives,
+        colors,
+        animals,
+      } = require("unique-names-generator");
+      nickname = uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+      });
     }
 
-
-    socket.emit("verify", {nickname, color})
+    socket.emit("verify", { nickname, color });
     socket.on("verify", (available) => {
-      if(available) {
-        console.log("new name: " + currentText)
-        return navigate("/app", { state: { name: nickname, color: currentColor } });
-      }
-      else{
-        alert(nickname +" is already taken, please try another name" )
+      if (available) {
+        console.log("new name: " + currentText);
+        navigate("/app", {
+          state: { name: nickname, color: currentColor },
+        });
+        socket.disconnect()
+      } else {
+        alert(nickname + " is already taken, please try another name");
         window.location.reload(false);
       }
-    })
-
+    });
   };
 
   return (
