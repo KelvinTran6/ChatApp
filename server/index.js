@@ -9,17 +9,33 @@ io.on("connection", (socket) => {
   var ID;
 
   socket.on("disconnect", () => {
-    console.log(ID);
     users = users.filter(function (obj) {
       return obj.user.socket !== ID
     });
     io.emit("newUser", users);
   });
 
-  socket.on("changeName", ({nickname, newNickName, color}) => {
+  socket.on("changeColor", ({nickname, newColor}) => {
     var index = users.findIndex((current => current.user.nickname == nickname));
+    users[index].user.color = newColor
+    io.emit("newUser", users);
+    const message = "Time for a change, my new color is " + newColor
+    const user = {nickname, newColor}
+    const date = new Date();
+    let timeStamp = date.toLocaleTimeString();
+    messages.unshift({ timeStamp: timeStamp, user, message: message });
+    io.emit("message", messages);
+  })
+
+  socket.on("changeName", ({nickname, newNickName, color}) => {
+    console.log(nickname +"--->"+newNickName)
+    var index = users.findIndex((current => current.user.nickname == nickname));
+    if(index < 0) {
+      console.log("cant find " + nickname)
+      return
+    }
+    console.log(nickname +"-*->"+newNickName)
     users[index].user.nickname = newNickName
-    console.log(users)
     io.emit("newUser", users);
     const date = new Date();
     let timeStamp = date.toLocaleTimeString();
@@ -28,8 +44,8 @@ io.on("connection", (socket) => {
     const user = {nickname, color}
 
     messages.unshift({ timeStamp: timeStamp, user, message: message });
-    console.log(messages)
     io.emit("message", messages);
+    return
   })
 
   socket.on("message", ({ user, message }) => {
@@ -46,7 +62,6 @@ io.on("connection", (socket) => {
     if (!users.some((user) => user.user.nickname === nickname)) {
       users.unshift({ user: { nickname, color: color, socket: ID } });
     }
-    console.log(users);
     io.emit("newUser", users);
   });
 
@@ -70,14 +85,13 @@ io.on("connection", (socket) => {
     io.emit("uniqueName", uniqueName);
   });
 
-  socket.on("verify", ({ nickname, color }) => {
+  socket.on("verify", ({ newNickName, color }) => {
     let available = true;
     console.log("checking");
-    if (users.some((user) => user.user.nickname === nickname)) {
-      console.log("taken");
+    if (users.some((user) => user.user.nickname === newNickName)) {
       available = false;
     }
-    socket.emit("verify", available);
+    return socket.emit("verify", available);
   });
 });
 

@@ -1,32 +1,29 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router";
 import "./App.css";
-import { Box, TextField, Grid, Button } from "@mui/material";
+import { Box, TextField, Grid, Snackbar, Alert } from "@mui/material";
 import io from "socket.io-client";
 
 const socket = io("localhost:4000", { transports: ["websocket"] });
 
 function App() {
   const { state } = useLocation();
-  const color = state.color;
-
+  const [color, setColor] = useState(state.color);
   const [loaded, setLoaded] = useState(false);
-  const [nickname, setnickname] = useState(state.name)
+  const [nickname, setnickname] = useState(state.name);
   const [userList, setUserList] = useState([]);
   const [currentText, setCurrentText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [alertInfo, setAlertInfo] = useState({message:"", severity: "", open: false})
 
   useEffect(() => {
     if (!loaded) {
       const color = state.color;
       const emptyString = undefined;
       const socketID = socket.id;
-
       console.log(socketID);
-
       socket.emit("userInfo", { nickname, color, socketID });
       socket.emit("message", { user: { nickname, color }, emptyString });
-
       setLoaded(true);
     }
 
@@ -43,42 +40,70 @@ function App() {
     setCurrentText(e.target.value);
   };
 
+  const handleClose = (e) => {
+    const alert = {message:"", severity:"", open: false}
+    setAlertInfo(alert)
+  }
+
   const handleKeypress = (e) => {
-    console.log(e);
     if (e.charCode === 13) {
       const message = currentText;
       if (message === "") {
         return;
       }
-
-      if (message.startsWith("/nick")) {
-        changeName(message)
-      }
-      else if (message.startsWith("/nickcolor")) {
-        changeColor()
-      }
-      else{
+      if (message.startsWith("/nick ")) {
+        changeName(message);
+      } else if (message.startsWith("/nickcolor")) {
+        changeColor(message);
+      } else {
         socket.emit("message", { user: { nickname, color }, message });
       }
-
       e.preventDefault();
       setCurrentText("");
     }
   };
+  
 
-  const changeName = (message) => {
-    const regExp = "\<(.+?)\>"
-    const regAngleBracket = "(<|>)"
-    const newNickName = message.match(regExp)[1].replace(regAngleBracket, "")
-
-
-    socket.emit("changeName", {nickname, newNickName, color})
-    setnickname(newNickName)
-
+  const changeColor = (message) => {
+    const regExp = "<(.+?)>";
+    const regAngleBracket = "(<|>)";
+    const newColor = message.match(regExp)[1].replace(regAngleBracket, "");
+    socket.emit("changeColor", { nickname, newColor });
+    setColor(newColor);
+    const alert = {message:"color changed", severity:"success", open: true}
+    setAlertInfo(alert)
   };
 
-  const changeColor = () => {};
+  const changeName = (message) => {
+    const regExp = "<(.+?)>";
+    const regAngleBracket = "(<|>)";
+    let newNickName = message.match(regExp)[1].replace(regAngleBracket, "");
+    console.log("chanigng name "+ newNickName)
 
+    socket.emit("verify", { newNickName, color });
+    socket.once("verify", (available) => {
+      if (available) {
+        console.log("new name " + newNickName)
+        socket.emit("changeName", { nickname, newNickName, color });
+        setnickname(newNickName);
+        const alert = {message:"name changed", severity:"success", open: true}
+        setAlertInfo(alert)
+
+      } else {
+        const alert = {message:"name taken", severity:"error", open: true}
+        setAlertInfo(alert)
+      }
+      return
+  })
+}
+
+
+  if(socket.id == undefined) {
+    return(
+      <h1>connection failed try again...</h1>
+    )
+  }
+  
   return (
     <Box sx={{ flexGrow: 1 }} className="container">
       <h1>
@@ -131,6 +156,16 @@ function App() {
           </Grid>
         </Grid>
       </Grid>
+      <Snackbar
+        open={alertInfo.open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message="Note archived"
+      >
+        <Alert onClose={handleClose} severity={alertInfo.severity} sx={{ width: "100%" }}>
+              {alertInfo.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -18,31 +18,31 @@ function Login() {
   };
 
   const handleButton = (e) => {
-    let nickname = currentText.trim();
+    let newNickName = currentText.trim();
     const color = currentColor;
 
-    if (nickname === "") {
+    if (newNickName === "") {
       const {
         uniqueNamesGenerator,
         adjectives,
         colors,
         animals,
       } = require("unique-names-generator");
-      nickname = uniqueNamesGenerator({
+      newNickName = uniqueNamesGenerator({
         dictionaries: [adjectives, colors, animals],
       });
     }
 
-    socket.emit("verify", { nickname, color });
+    socket.emit("verify", { newNickName, color });
     socket.on("verify", (available) => {
       if (available) {
         console.log("new name: " + currentText);
         navigate("/app", {
-          state: { name: nickname, color: currentColor },
+          state: { name: newNickName, color: currentColor },
         });
         socket.disconnect()
       } else {
-        alert(nickname + " is already taken, please try another name");
+        alert(newNickName + " is already taken, please try another name");
         window.location.reload(false);
       }
     });
