@@ -20,15 +20,19 @@ io.on("connection", (socket) => {
     users[index].user.color = newColor
     io.emit("newUser", users);
     const message = "Time for a change, my new color is " + newColor
-    const user = {nickname, newColor}
+    const user = {nickname, color: newColor}
     const date = new Date();
     let timeStamp = date.toLocaleTimeString();
     messages.unshift({ timeStamp: timeStamp, user, message: message });
+    console.log(messages)
     io.emit("message", messages);
   })
 
   socket.on("changeName", ({nickname, newNickName, color}) => {
     console.log(nickname +"--->"+newNickName)
+
+
+    
     var index = users.findIndex((current => current.user.nickname == nickname));
     if(index < 0) {
       console.log("cant find " + nickname)
