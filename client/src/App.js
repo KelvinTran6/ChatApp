@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router";
 import "./App.css";
-import { Box, TextField, Grid, Snackbar, Alert } from "@mui/material";
+import { Box, TextField, Grid, Snackbar, Alert } from "@mui/material"
 import io from "socket.io-client";
 import validateColor from "validate-color";
 
@@ -22,13 +22,11 @@ function App() {
     open: false,
   });
   const [run, setRun] = useState(true)
-
   useEffect(() => {
     if (!loaded) {
       const color = state.color;
       const emptyString = undefined;
       const socketID = socket.id;
-      console.log("hello");
 
       if(socket.id === undefined){
         setRun(false);
@@ -99,12 +97,9 @@ function App() {
     const regExp = "<(.+?)>";
     const regAngleBracket = "(<|>)";
     let newNickName = message.match(regExp)[1].replace(regAngleBracket, "");
-    console.log("chanigng name " + newNickName);
-
     socket.emit("verify", { newNickName, color });
     socket.once("verify", (available) => {
       if (available) {
-        console.log("new name " + newNickName);
         socket.emit("changeName", { nickname, newNickName, color });
         setnickname(newNickName);
         const alert = {
@@ -133,14 +128,20 @@ function App() {
       <Box sx={{ flexGrow: 1 }} className="container">
         <Grid container className="window">
           <Grid item container spacing={3} className="content">
-            <Grid item xs={12} md={12} lg={9} className="chatWindow">
+            <Grid item xs={12} md={12} lg={12} className="chatWindow">
               <h2>
             Welcome <span style={{ color: color }}>{nickname}</span>!
             </h2>
               <div className="chatBox">
                 {messages.map((message) => {
+                  let fontWeight = "normal"
+
+                  if(message.user.nickname === nickname) {
+                    fontWeight = "bold"
+                  }
+
                   return (
-                    <span key={message}>
+                    <span key={message} style = {{display: "flex", justifyContent: "left", alignItems: "center"}}>
                       <p>
                         {" "}
                         {message.timeStamp}{" "}
@@ -148,22 +149,10 @@ function App() {
                           {" "}
                           {message.user.nickname}{" "}
                         </span>
-                        : <strong>{message.message}</strong>
+                        : 
                       </p>
+                      <p style = {{fontWeight: fontWeight}}>&ensp;{message.message}</p>
                     </span>
-                  );
-                })}
-              </div>
-            </Grid>
-            <Grid item xs={12} md={12} lg={3} className="usersWindow">
-              <h2> Online Users </h2>{" "}
-              <div className="userBox">
-                {userList.map((current) => {
-                  return (
-                    <p key={current} style={{ color: current.user.color }}>
-                      {" "}
-                      {current.user.nickname}{" "}
-                    </p>
                   );
                 })}
               </div>
@@ -181,20 +170,6 @@ function App() {
             </Grid>
           </Grid>
         </Grid>
-        <Snackbar
-          open={alertInfo.open}
-          autoHideDuration={6000}
-          onClose={handleClose}
-          message="Note archived"
-        >
-          <Alert
-            onClose={handleClose}
-            severity={alertInfo.severity}
-            sx={{ width: "100%" }}
-          >
-            {alertInfo.message}
-          </Alert>
-        </Snackbar>
       </Box>
     );
   }

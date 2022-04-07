@@ -43,12 +43,11 @@ function Login() {
         dictionaries: [adjectives, colors, animals],
       });
     }
-    console.log("yolo");
+
     socket.emit("verify", { newNickName, color });
     socket.on("verify", (available) => {
-      console.log("yolo");
+
       if (available) {
-        console.log("new name: " + currentText);
         navigate("/app", {
           state: { name: newNickName, color: color },
         });

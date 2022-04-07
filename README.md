@@ -1,5 +1,6 @@
 # How to run the application
 - the application has two parts (server and client) that need to be ran serparately
+- first run npm intall to install packages
 
 ## Server
 
